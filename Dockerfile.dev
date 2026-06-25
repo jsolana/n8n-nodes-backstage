@@ -1,0 +1,15 @@
+FROM docker.n8n.io/n8nio/n8n:latest
+
+USER root
+
+RUN mkdir -p /opt/custom-nodes/n8n-nodes-backstage
+
+COPY package.json /opt/custom-nodes/n8n-nodes-backstage/
+COPY dist/ /opt/custom-nodes/n8n-nodes-backstage/dist/
+
+RUN chown -R node:node /opt/custom-nodes
+USER node
+
+ENV N8N_CUSTOM_EXTENSIONS=/opt/custom-nodes/n8n-nodes-backstage
+
+ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
