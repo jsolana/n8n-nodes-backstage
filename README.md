@@ -60,6 +60,7 @@ Configure which operations the agent can access via the **Available Operations**
 ### AI Agent (RAG)
 
 Connect the Backstage AI Tool node to an AI Agent. The agent can then answer questions like:
+
 - "Who owns the payment-gateway service?"
 - "What APIs does the ride-service consume?"
 - "Show me the onboarding docs for the driver platform"
@@ -70,20 +71,29 @@ Connect the Backstage AI Tool node to an AI Agent. The agent can then answer que
 # Install dependencies
 npm install
 
-# Build the node (TypeScript + esbuild bundling)
-npm run build
-
-# Build Docker image with the node and run n8n locally
-make run
-
-# Or step by step:
-make build    # Compile TypeScript + bundle dependencies
-make docker   # Build Docker image
-make run      # Build + Docker + run n8n at http://localhost:5678
+# Build (TypeScript + esbuild bundling)
+make build
 
 # Lint
-npm run lint
+make lint
+
+# Run n8n locally with the node loaded (builds + Docker image + starts container)
+# Access n8n at http://localhost:5678
+make run
+
+# Clean build artifacts, node_modules, Docker image, and dev volume
+make clean
 ```
+
+### Make targets
+
+| Target | Description |
+|--------|-------------|
+| `make build` | Compile TypeScript and bundle with esbuild (`npm run build`) |
+| `make lint` | Run linter (`npm run lint`) |
+| `make docker` | Build + create Docker dev image (`n8n-backstage-dev`) |
+| `make run` | Build + Docker + run n8n at `localhost:5678` (data persisted in a Docker volume) |
+| `make clean` | Remove `dist/`, `node_modules/`, Docker container, image, and dev volume |
 
 ## License
 
