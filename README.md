@@ -93,6 +93,8 @@ make clean
 | `make lint` | Run linter (`npm run lint`) |
 | `make docker` | Build + create Docker dev image (`n8n-backstage-dev`) |
 | `make run` | Build + Docker + run n8n at `localhost:5678` (data persisted in a Docker volume) |
+| `make release` | Lint + build + interactive release (bump version, tag, push, publish via CI) |
+| `make info` | Show published package info from npm registry |
 | `make clean` | Remove `dist/`, `node_modules/`, Docker container, image, and dev volume |
 
 ## License

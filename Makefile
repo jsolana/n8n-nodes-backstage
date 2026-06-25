@@ -1,4 +1,4 @@
-.PHONY: build lint docker run clean
+.PHONY: build lint docker run release info clean
 
 build:
 	npm run build
@@ -22,3 +22,9 @@ clean:
 	docker rm -f n8n-dev 2>/dev/null || true
 	docker rmi n8n-backstage-dev 2>/dev/null || true
 	docker volume rm n8n_backstage_dev_data 2>/dev/null || true
+
+release: lint build
+	npm run release
+
+info:
+	npm info n8n-nodes-backstage
