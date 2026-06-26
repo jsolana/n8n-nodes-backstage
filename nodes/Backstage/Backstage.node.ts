@@ -17,7 +17,7 @@ export class Backstage implements INodeType {
 		icon: { light: 'file:backstage.svg', dark: 'file:backstage.dark.svg' },
 		group: ['input'],
 		version: 1,
-		subtitle: '={{$parameter["operation"]}}',
+		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Query Backstage software catalog and TechDocs via MCP',
 		defaults: {
 			name: 'Backstage',
@@ -33,17 +33,30 @@ export class Backstage implements INodeType {
 		],
 		properties: [
 			{
+				displayName: 'Resource',
+				name: 'resource',
+				type: 'options',
+				noDataExpression: true,
+				options: [
+					{ name: 'Catalog', value: 'catalog' },
+					{ name: 'CLI', value: 'cli' },
+					{ name: 'TechDoc', value: 'techdoc' },
+				],
+				default: 'catalog',
+			},
+
+			// --- Catalog operations ---
+			{
 				displayName: 'Operation',
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
-				options: [
-					{
-						name: 'Execute Command',
-						value: 'execute',
-						description: 'Run an arbitrary backctl CLI command',
-						action: 'Execute a backctl command',
+				displayOptions: {
+					show: {
+						resource: ['catalog'],
 					},
+				},
+				options: [
 					{
 						name: 'Get Entity',
 						value: 'getEntity',
@@ -57,22 +70,10 @@ export class Backstage implements INodeType {
 						action: 'Get relationships for an entity',
 					},
 					{
-						name: 'Get TechDocs Page',
-						value: 'getTechDocsPage',
-						description: 'Fetch content of a TechDocs documentation page',
-						action: 'Get a techdocs page',
-					},
-					{
 						name: 'List Entities',
 						value: 'listEntities',
 						description: 'List and filter entities in the catalog',
 						action: 'List entities in the catalog',
-					},
-					{
-						name: 'List TechDocs Pages',
-						value: 'listTechDocsPages',
-						description: 'List all documentation pages for an entity',
-						action: 'List techdocs pages',
 					},
 					{
 						name: 'Search',
@@ -84,7 +85,57 @@ export class Backstage implements INodeType {
 				default: 'search',
 			},
 
-			// --- Search fields ---
+			// --- TechDocs operations ---
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['techdoc'],
+					},
+				},
+				options: [
+					{
+						name: 'Get Page',
+						value: 'getTechDocsPage',
+						description: 'Fetch content of a TechDocs documentation page',
+						action: 'Get a techdocs page',
+					},
+					{
+						name: 'List Pages',
+						value: 'listTechDocsPages',
+						description: 'List all documentation pages for an entity',
+						action: 'List techdocs pages',
+					},
+				],
+				default: 'getTechDocsPage',
+			},
+
+			// --- CLI operations ---
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['cli'],
+					},
+				},
+				options: [
+					{
+						name: 'Execute Command',
+						value: 'execute',
+						description: 'Run an arbitrary backctl CLI command',
+						action: 'Execute a backctl command',
+					},
+				],
+				default: 'execute',
+			},
+
+			// --- Catalog: Search fields ---
 			{
 				displayName: 'Query',
 				name: 'query',
@@ -95,6 +146,7 @@ export class Backstage implements INodeType {
 				description: 'Free-text search term',
 				displayOptions: {
 					show: {
+						resource: ['catalog'],
 						operation: ['search'],
 					},
 				},
@@ -112,6 +164,7 @@ export class Backstage implements INodeType {
 				description: 'Filter results by type',
 				displayOptions: {
 					show: {
+						resource: ['catalog'],
 						operation: ['search'],
 					},
 				},
@@ -125,12 +178,13 @@ export class Backstage implements INodeType {
 				description: 'Maximum number of results to return',
 				displayOptions: {
 					show: {
+						resource: ['catalog'],
 						operation: ['search'],
 					},
 				},
 			},
 
-			// --- Get Entity fields ---
+			// --- Catalog: Get Entity fields ---
 			{
 				displayName: 'Entity Ref',
 				name: 'ref',
@@ -141,12 +195,13 @@ export class Backstage implements INodeType {
 				description: 'Entity ref in format kind:[namespace/]name',
 				displayOptions: {
 					show: {
+						resource: ['catalog'],
 						operation: ['getEntity'],
 					},
 				},
 			},
 
-			// --- List Entities fields ---
+			// --- Catalog: List Entities fields ---
 			{
 				displayName: 'Kind',
 				name: 'kind',
@@ -165,6 +220,7 @@ export class Backstage implements INodeType {
 				description: 'Filter by entity kind',
 				displayOptions: {
 					show: {
+						resource: ['catalog'],
 						operation: ['listEntities'],
 					},
 				},
@@ -178,6 +234,7 @@ export class Backstage implements INodeType {
 				description: 'Additional filter expression',
 				displayOptions: {
 					show: {
+						resource: ['catalog'],
 						operation: ['listEntities'],
 					},
 				},
@@ -191,6 +248,7 @@ export class Backstage implements INodeType {
 				description: 'Maximum number of entities to return',
 				displayOptions: {
 					show: {
+						resource: ['catalog'],
 						operation: ['listEntities'],
 					},
 				},
@@ -203,57 +261,13 @@ export class Backstage implements INodeType {
 				description: 'Pagination cursor from a previous response',
 				displayOptions: {
 					show: {
+						resource: ['catalog'],
 						operation: ['listEntities'],
 					},
 				},
 			},
 
-			// --- Get TechDocs Page fields ---
-			{
-				displayName: 'Entity Ref',
-				name: 'techDocsRef',
-				type: 'string',
-				required: true,
-				default: '',
-				placeholder: 'component:default/my-service',
-				description: 'Entity ref that owns the documentation',
-				displayOptions: {
-					show: {
-						operation: ['getTechDocsPage'],
-					},
-				},
-			},
-			{
-				displayName: 'Page Path',
-				name: 'pagePath',
-				type: 'string',
-				default: '',
-				placeholder: 'getting-started',
-				description: 'Page path within the docs. Leave empty for the index page.',
-				displayOptions: {
-					show: {
-						operation: ['getTechDocsPage'],
-					},
-				},
-			},
-
-			// --- List TechDocs Pages fields ---
-			{
-				displayName: 'Entity Ref',
-				name: 'techDocsListRef',
-				type: 'string',
-				required: true,
-				default: '',
-				placeholder: 'component:default/my-service',
-				description: 'Entity ref that owns the documentation',
-				displayOptions: {
-					show: {
-						operation: ['listTechDocsPages'],
-					},
-				},
-			},
-
-			// --- Get Relationships fields ---
+			// --- Catalog: Get Relationships fields ---
 			{
 				displayName: 'Entity Ref',
 				name: 'relRef',
@@ -264,6 +278,7 @@ export class Backstage implements INodeType {
 				description: 'Root entity ref to traverse from',
 				displayOptions: {
 					show: {
+						resource: ['catalog'],
 						operation: ['getRelationships'],
 					},
 				},
@@ -281,6 +296,7 @@ export class Backstage implements INodeType {
 				description: 'Traversal direction for relationships',
 				displayOptions: {
 					show: {
+						resource: ['catalog'],
 						operation: ['getRelationships'],
 					},
 				},
@@ -294,6 +310,7 @@ export class Backstage implements INodeType {
 				description: 'Filter by relation type (e.g. dependsOn, consumesApi)',
 				displayOptions: {
 					show: {
+						resource: ['catalog'],
 						operation: ['getRelationships'],
 					},
 				},
@@ -307,12 +324,61 @@ export class Backstage implements INodeType {
 				description: 'Maximum traversal depth',
 				displayOptions: {
 					show: {
+						resource: ['catalog'],
 						operation: ['getRelationships'],
 					},
 				},
 			},
 
-			// --- Execute fields ---
+			// --- TechDocs: Get Page fields ---
+			{
+				displayName: 'Entity Ref',
+				name: 'techDocsRef',
+				type: 'string',
+				required: true,
+				default: '',
+				placeholder: 'component:default/my-service',
+				description: 'Entity ref that owns the documentation',
+				displayOptions: {
+					show: {
+						resource: ['techdoc'],
+						operation: ['getTechDocsPage'],
+					},
+				},
+			},
+			{
+				displayName: 'Page Path',
+				name: 'pagePath',
+				type: 'string',
+				default: '',
+				placeholder: 'getting-started',
+				description: 'Page path within the docs. Leave empty for the index page.',
+				displayOptions: {
+					show: {
+						resource: ['techdoc'],
+						operation: ['getTechDocsPage'],
+					},
+				},
+			},
+
+			// --- TechDocs: List Pages fields ---
+			{
+				displayName: 'Entity Ref',
+				name: 'techDocsListRef',
+				type: 'string',
+				required: true,
+				default: '',
+				placeholder: 'component:default/my-service',
+				description: 'Entity ref that owns the documentation',
+				displayOptions: {
+					show: {
+						resource: ['techdoc'],
+						operation: ['listTechDocsPages'],
+					},
+				},
+			},
+
+			// --- CLI: Execute fields ---
 			{
 				displayName: 'Command',
 				name: 'command',
@@ -324,6 +390,7 @@ export class Backstage implements INodeType {
 					'The backctl subcommand and arguments to execute (e.g. "catalog ancestry component:default/my-service")',
 				displayOptions: {
 					show: {
+						resource: ['cli'],
 						operation: ['execute'],
 					},
 				},
