@@ -22,6 +22,9 @@
         "type": "git",
         "url": "https://github.com/jsolana/n8n-nodes-backstage.git"
     },
+    "publishConfig": {
+        "access": "public"
+    },
     "scripts": {
         "build": "n8n-node build && node esbuild.config.mjs",
         "build:watch": "tsc --watch",
